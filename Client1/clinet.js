@@ -1,7 +1,7 @@
 const io = require('socket.io-client');
 const http = require('http');
 
-let server_location = 'dhaka';
+let server_location = 'chittagong';
 
 // const socket = io.connect('http://localhost:5000');
 const socket = io.connect(`http://communication.${server_location}.com:5000`);

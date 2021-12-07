@@ -1,13 +1,10 @@
 const http = require('http');
 const express = require('express');
-const mongoose = require('mongoose');
-const Ratings = require('./Models/Rating');
-const socketio = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio();
-io.listen(5000);
+
+const server_location = process.env.SERVERLOCATION;
 
 app.use(express.json());
 
@@ -56,60 +53,6 @@ var bestMatch = function(){
   return matchingPair;
 }
 
-// connecting to db
-mongoose.connect('mongodb://localhost:27017/RideSharingApp', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => {
-  console.log("Connected to Database");
-});
-
-
-app.post('/rating', (req, res) => {
-  // console.log(req.body);
-  console.log("RATINGS Added");
-  
-  for(var i = 0; i < req.body.length; i++)
-  {
-    const rating = new Ratings({
-      driverNmae: req.body[i].driverName,
-      riderName: req.body[i].riderName,
-      rating: req.body[i].rating
-    });
-    rating.save()
-    .then(data => {
-      console.log(data);
-      console.log("Ratings saved Successfully");
-    })
-    .catch(error => {
-      console.log(error);
-    });
-  }
-
-  res.end();
-  
-});
-
-// Run when client connects
-const connection = io.on('connection', socket => {
-  console.log("New WS Connection onpend!!!");
-  // socket.emit("message", "Welcome to Socket");
-
-  // emit message
-  // socket.emit("message", "Connection Started!!!");
-});
-
-app.post('/communication', (req, res) => {
-  console.log("Request Body:");
-  console.log(req.body);
-
-  connection.emit('message', req.body);
-  
-  res.status(201).send("Request Completed");
-  res.end();
-});
-
 app.post('/rider', (req, res) => {
   console.log(req.body);
   console.log("RIDER");
@@ -134,22 +77,15 @@ app.post('/rider', (req, res) => {
   res.end();
 });
 
-app.post('/driver', (req, res) => {
-  console.log(req.body);
-  console.log("DRIVER");
-  driver.push(req.body);
-  // console.log(driver);
-  res.send("Request Completed");
-  res.end();
-});
-
 //sending data to communication endpoint
 const sendData = function(match) {
   const data = JSON.stringify(match);
 
   const options = {
-    hostname: 'localhost',
-    port: 3000,
+    // hostname: 'localhost',
+    // hostname: 'communication-service',
+    hostname: `communication-service-${server_location}`,
+    port: 3002,
     path: '/communication',
     method: 'POST',
     headers: {
@@ -173,6 +109,16 @@ const sendData = function(match) {
   req.end();
 }
 
-const PORT = process.env.PORT || 3000;
+app.post('/driver', (req, res) => {
+  console.log(req.body);
+  console.log("DRIVER");
+  driver.push(req.body);
+  // console.log(driver);
+  res.send("Request Completed");
+  res.end();
+});
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 3000;
+// const HOST = '0.0.0.0';
+
+server.listen(PORT);

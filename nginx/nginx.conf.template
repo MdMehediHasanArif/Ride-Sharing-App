@@ -1,0 +1,16 @@
+server {
+	listen 80;
+	# listen [::]:80;
+	
+	location /rider {
+		proxy_pass http://${API_V1}:3000;
+	}
+
+	location /driver {
+		proxy_pass http://${API_V1}:3000;
+	}
+	
+	location /rating {
+		proxy_pass http://${API_V2}:3001;
+	}
+}

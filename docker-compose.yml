@@ -1,0 +1,94 @@
+version: '3'
+
+networks:
+    bdnet:
+      ipam:
+        config:
+          - subnet: 10.100.0.0/24
+
+services: 
+    rating-service:
+        
+        build: ./Rating/
+        restart: always
+        depends_on: 
+            - mongodb
+        networks:
+            bdnet:
+                ipv4_address: 10.100.0.4    
+
+    communication-service-dhaka:
+        build: ./Communication/
+        restart: always
+        networks:
+            bdnet:
+                ipv4_address: 10.100.0.30
+    
+    ride-sharing-service-dhaka:
+        build: ./RideService/
+        restart: always
+        depends_on: 
+            - communication-service-dhaka
+        environment: 
+            - SERVERLOCATION=dhaka
+        networks:
+            bdnet:
+                ipv4_address: 10.100.0.100
+
+    nginx-dhaka:
+        build: ./nginx/
+        depends_on: 
+            - rating-service
+            - ride-sharing-service-dhaka
+        environment: 
+            - API_V1=ride-sharing-service-dhaka
+            - API_V2=rating-service
+        command: /bin/sh -c "envsubst < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/nginx.conf && nginx -g 'daemon off;'" 
+        networks:
+            bdnet:
+                ipv4_address: 10.100.0.3
+
+    communication-service-chittagong:
+        build: ./Communication/
+        restart: always
+        networks:
+            bdnet:
+                ipv4_address: 10.100.0.20
+                
+    ride-sharing-service-chittagong:
+        build: ./RideService/
+        restart: always
+        depends_on: 
+            - communication-service-chittagong
+        environment: 
+            - SERVERLOCATION=chittagong
+        networks:
+            bdnet:
+                ipv4_address: 10.100.0.200
+            
+    nginx-chittagong:
+        build: ./nginx/
+        depends_on: 
+            - rating-service
+            - ride-sharing-service-chittagong
+        environment: 
+            - API_V1=ride-sharing-service-chittagong
+            - API_V2=rating-service
+        command: /bin/sh -c "envsubst < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/nginx.conf && nginx -g 'daemon off;'" 
+        networks:
+            bdnet:
+                ipv4_address: 10.100.0.2
+
+    mongodb:
+        image: mongo
+        ports: 
+            - 27017:27017
+        volumes:
+            - mongodb_data_container:/data/db
+        networks:
+            bdnet:
+                ipv4_address: 10.100.0.5
+    
+volumes:
+    mongodb_data_container:
+    
