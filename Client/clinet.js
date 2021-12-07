@@ -1,7 +1,10 @@
 const io = require('socket.io-client');
 const http = require('http');
 
+
 const socket = io.connect('http://localhost:5000');
+// const socket = io.connect(`http://communication.${server_location}.com:5000`);
+
 
 socket.on("message", message=> {
   console.log(message);
@@ -34,8 +37,9 @@ var rating = function(data){
 
   const options = {
     hostname: 'localhost',
-    // port: 104,
-    port: 3000,
+    // hostname: `server.${server_location}.com`,
+    port: 104,
+    // port: 3005,
     path: '/rating',
     method: 'POST',
     headers: {
@@ -79,9 +83,10 @@ var riderData = function(){
 
   const options = {
     hostname: 'localhost',
-    // port: 104,
+    // hostname: `server.${server_location}.com`,
+    port: 104,
     // port: 8080,
-    port: 3000,
+    // port: 3000,
     path: '/rider',
     method: 'POST',
     headers: {
@@ -117,8 +122,9 @@ var driverData = function(){
   
     const options = {
       hostname: 'localhost',
-      // port: 104,
-      port: 3000,
+      // hostname: `server.${server_location}.com`,
+      port: 104,
+      // port: 3000,
       // port: 8080,
       path: '/driver',
       method: 'POST',
