@@ -1,0 +1,16 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "sami",
+  "main": "clinet.js",
+  "scripts": {
+    "start": "nodemon client.js"
+  },
+  "author": "sami",
+  "license": "MIT",
+  "dependencies": {
+    "nodemon": "^2.0.14",
+    "socket.io": "^4.0.1",
+    "socket.io-client": "^4.0.1"
+  }
+}
